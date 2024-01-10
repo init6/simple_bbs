@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  db:
+    image: mysql:8.0
+    ports:
+      - 33060:3306
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./log:/var/log/mysql
+  app:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle install && bundle exec rails s -b 0.0.0.0"
+    environment:
+      - HOST_USER=${USER}
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/simple_bbs
+      - bundle:/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+volumes:
+  bundle:
+  mysql-data:
+    driver: local
